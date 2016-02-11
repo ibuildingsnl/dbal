@@ -64,7 +64,9 @@ class PDOStatement extends \PDOStatement implements Statement
     public function bindValue($param, $value, $type = \PDO::PARAM_STR)
     {
         try {
-            return parent::bindValue($param, $value, $type);
+            // return parent::bindValue($param, $value, $type);
+            // We call the bindParam so we can specify the length
+            return $this->bindParam($param, $value, $type);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -76,6 +78,10 @@ class PDOStatement extends \PDOStatement implements Statement
     public function bindParam($column, &$variable, $type = \PDO::PARAM_STR, $length = null, $driverOptions = null)
     {
         try {
+            // When the length is not set, use the max value of oracle, 4000 bytes
+            if ($type === \PDO::PARAM_STR && is_null($length)) {
+                $length = 4000;
+            }
             return parent::bindParam($column, $variable, $type, $length, $driverOptions);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
